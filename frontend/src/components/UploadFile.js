@@ -44,7 +44,9 @@ const UploadFile = () => {
     let fd = new FormData();
     fd.append("file", fileName);
     fd.append("id", localStorage.getItem("id"));
-    fd.append("allowedUserId", allowedUserId);
+    allowedUserId.forEach((value) => {
+      fd.append("allowedUserId", value);
+    });
 
     axios
       .put("http://localhost:8000/api/uploadFile", fd, {

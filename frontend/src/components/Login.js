@@ -24,9 +24,19 @@ const Login = () => {
       .post("http://localhost:8000/api/login", dataToPass)
       .then((result) => {
         if (result.data.code == 200) {
-          localStorage.setItem("token", result.data.authToken);
-          localStorage.setItem("id", result.data.data._id);
-          navigate("/upload");
+          if (result.data.success) {
+            localStorage.setItem("token", result.data.authToken);
+            localStorage.setItem("id", result.data.data._id);
+            navigate("/upload");
+          } else {
+            alert("Invlaid credentials");
+            setEmail("");
+            setPassword("");
+          }
+        } else {
+          alert("Invlaid credentials");
+          setEmail("");
+          setPassword("");
         }
       })
       .catch((err) => console.log(err, "<- register error"));
@@ -42,6 +52,7 @@ const Login = () => {
             type="email"
             placeholder="Enter email"
             onChange={(e) => setEmail(e.target.value)}
+            value={email}
           />
         </Form.Group>
 
@@ -51,6 +62,7 @@ const Login = () => {
             type="password"
             placeholder="Password"
             onChange={(e) => setPassword(e.target.value)}
+            value={password}
           />
         </Form.Group>
 

@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     {
       name: String,
       link: String,
-      allowedUserId: Array,
+      allowedUserId: [],
       uploadedBy: String,
     },
   ],

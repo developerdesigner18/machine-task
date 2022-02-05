@@ -182,20 +182,32 @@ exports.singleFileDetail = async (req, res) => {
     for (let file of fileList) {
       if (file.uploadList.length) {
         checkPermission = file.uploadList.find((item) => {
-          const found = item.allowedUserId.find((id) => id == req.query.userId);
-          if (found) {
-            return item;
-          } else if (req.query.userId == item.uploadedBy) {
-            return item;
+          if (item._id == req.query.id) {
+            const found = item.allowedUserId.find(
+              (id) => id == req.query.userId
+            );
+            if (found) {
+              return item;
+            } else if (req.query.userId == item.uploadedBy) {
+              return item;
+            }
           }
         });
+        if (checkPermission) {
+          return res.json({
+            code: 200,
+            success: true,
+            data: checkPermission,
+          });
+        } else {
+          return res.json({
+            code: 404,
+            success: false,
+            message: "No data found!",
+          });
+        }
       }
     }
-    res.json({
-      code: 200,
-      success: true,
-      data: checkPermission,
-    });
   } else {
     res.json({
       code: 404,
