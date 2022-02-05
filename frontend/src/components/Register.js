@@ -24,7 +24,6 @@ const Register = () => {
     axios
       .post("http://localhost:8000/api/register", dataToPass)
       .then((result) => {
-        console.log("result ", result.data);
         if (result.data.code == 200) {
           localStorage.setItem("token", result.data.authToken);
           localStorage.setItem("id", result.data.data._id);

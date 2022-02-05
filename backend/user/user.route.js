@@ -15,5 +15,6 @@ route.put(
 );
 route.get("/uploadedFileList", protect, controller.uploadedFileList);
 route.get("/singleFileDetail", protect, controller.singleFileDetail);
+route.get("/usersList", protect, controller.usersList);
 
 module.exports = route;

@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
     {
       name: String,
       link: String,
-      permission: Boolean,
+      allowedUserId: Array,
+      uploadedBy: String,
     },
   ],
 });

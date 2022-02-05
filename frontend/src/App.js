@@ -4,6 +4,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import FileList from "./components/FileList";
 import File403 from "./components/403File";
+import FileLoad from "./components/FileLoad";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route exact path="/login" element={<Login />} />
           <Route exact path="/file-list" element={<FileList />} />
           <Route exact path="/not-permission" element={<File403 />} />
+          <Route exact path="/load-file" element={<FileLoad />} />
         </Routes>
       </Router>
     </div>

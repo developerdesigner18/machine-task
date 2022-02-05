@@ -3,14 +3,13 @@ import Container from "react-bootstrap/Container";
 import { useNavigate } from "react-router-dom";
 import Table from "react-bootstrap/Table";
 import axios from "axios";
+import FileLoad from "./FileLoad";
 
 const FileList = () => {
   const [list, setList] = useState();
   const navigate = useNavigate();
 
   useEffect(() => {
-    let temp = [];
-
     axios
       .get("http://localhost:8000/api/uploadedFileList", {
         headers: {
@@ -19,16 +18,7 @@ const FileList = () => {
       })
       .then((result) => {
         if (result.data.code == 200) {
-          if (result.data.data.length) {
-            result.data.data.forEach((item) => {
-              if (item.uploadList.length) {
-                item.uploadList.forEach((value) => {
-                  temp.push(value);
-                });
-              }
-            });
-          }
-          setList(temp);
+          setList(result.data.data);
         }
       })
       .catch((err) => console.log("error in list ", err));
@@ -36,15 +26,20 @@ const FileList = () => {
 
   const viewFile = (item) => {
     axios
-      .get(`http://localhost:8000/api/singleFileDetail?id=${item._id}`, {
-        headers: {
-          token: localStorage.getItem("token"),
-        },
-      })
+      .get(
+        `http://localhost:8000/api/singleFileDetail?id=${
+          item._id
+        }&userId=${localStorage.getItem("id")}`,
+        {
+          headers: {
+            token: localStorage.getItem("token"),
+          },
+        }
+      )
       .then((result) => {
-        console.log(result.data);
         if (result.data.data) {
-          window.location.href = result.data.data.link;
+          // window.location.href = result.data.data.link;
+          navigate("/load-file", { state: { data: item } });
         } else {
           navigate("/not-permission");
         }
@@ -75,17 +70,28 @@ const FileList = () => {
           )}
         </div>
         <Table responsive="md">
+          <thead>
+            <tr>
+              <td>
+                <b>File Name</b>
+              </td>
+              <td>
+                <b>Uploaded By</b>
+              </td>
+            </tr>
+          </thead>
           <tbody>
             {list && list.length
-              ? list.map((item) => {
+              ? list.map((item, i) => {
                   return (
-                    <tr>
+                    <tr key={i}>
                       <td
                         style={{ cursor: "pointer" }}
                         onClick={() => viewFile(item)}
                       >
                         {item.name}
                       </td>
+                      <td>{item?.uploadedUser?.name}</td>
                     </tr>
                   );
                 })

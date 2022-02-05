@@ -96,8 +96,9 @@ exports.uploadFile = async (req, res) => {
     let upload = existUser.uploadList ? existUser.uploadList : [];
     upload.push({
       name: req.file.originalname,
-      link: "http://localhost:8000/" + req.file.originalname,
-      permission: req.body.permission,
+      link: "http://localhost:8000/" + req.file.filename,
+      allowedUserId: req.body.allowedUserId,
+      uploadedBy: req.body.id,
     });
     user.findByIdAndUpdate(
       { _id: existUser._id },
@@ -134,13 +135,34 @@ exports.uploadFile = async (req, res) => {
 
 exports.uploadedFileList = async (req, res) => {
   console.log("upload file list");
+  let userList = [];
 
   const list = await user.find().lean().exec();
   if (list.length) {
+    for (let user1 of list) {
+      if (user1.uploadList.length) {
+        for (let item of user1.uploadList) {
+          let allowedUser, uploadedUser;
+
+          uploadedUser = await user
+            .findById({ _id: item.uploadedBy }, { name: 1 })
+            .lean()
+            .exec();
+          userList.push({
+            name: item.name,
+            link: item.link,
+            uploadedUser: uploadedUser,
+            allowedUserId: item.allowedUserId,
+            uploadedUserId: item.uploadedBy,
+            _id: item._id,
+          });
+        }
+      }
+    }
     res.json({
       code: 200,
       success: true,
-      data: list,
+      data: userList,
     });
   } else {
     res.json({
@@ -159,9 +181,14 @@ exports.singleFileDetail = async (req, res) => {
   if (fileList.length) {
     for (let file of fileList) {
       if (file.uploadList.length) {
-        checkPermission = file.uploadList.find(
-          ({ _id, permission }) => _id == req.query.id && permission == true
-        );
+        checkPermission = file.uploadList.find((item) => {
+          const found = item.allowedUserId.find((id) => id == req.query.userId);
+          if (found) {
+            return item;
+          } else if (req.query.userId == item.uploadedBy) {
+            return item;
+          }
+        });
       }
     }
     res.json({
@@ -174,6 +201,26 @@ exports.singleFileDetail = async (req, res) => {
       code: 404,
       success: false,
       message: "No data found!",
+    });
+  }
+};
+
+exports.usersList = async (req, res) => {
+  console.log("users list api ");
+
+  const list = await user.find().lean().exec();
+
+  if (list.length) {
+    res.json({
+      code: 200,
+      success: true,
+      data: list,
+    });
+  } else {
+    res.json({
+      code: 404,
+      success: false,
+      message: "No user has been registered yet!",
     });
   }
 };
